@@ -136,11 +136,11 @@ with tab1:
     with col2:
         ts_v, xs_v, ys_v, _, _, _ = simular_lancamento(v0_1, ang_1, h0_1, m=1.0, b=0.0)
         
-        # Subplots com espaçamento adequado (horizontal e vertical aumentados)
+        # Ajuste de espaçamento vertical e alturas de linha para evitar sobreposição do título inferior
         fig1 = make_subplots(
             rows=2, cols=2, 
-            column_widths=[0.72, 0.28], row_heights=[0.72, 0.28],
-            horizontal_spacing=0.15, vertical_spacing=0.18,
+            column_widths=[0.72, 0.28], row_heights=[0.62, 0.30],
+            horizontal_spacing=0.15, vertical_spacing=0.26,
             subplot_titles=("Trajetória Principal (X vs Y)", "Projeção Y(t)", "Projeção X(t)", "")
         )
         
@@ -166,10 +166,10 @@ with tab1:
             
         fig1.frames = frames
         fig1.update_layout(
-            height=500, showlegend=False, paper_bgcolor='white', plot_bgcolor='white',
-            margin=dict(l=20, r=20, t=75, b=20), # Margem superior ampliada para evitar sobreposição
+            height=530, showlegend=False, paper_bgcolor='white', plot_bgcolor='white',
+            margin=dict(l=20, r=20, t=80, b=20),
             updatemenus=[{
-                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.22, # Botões posicionados acima do título
+                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.25,
                 "buttons": [
                     {"label": "▶ Play", "method": "animate", "args": [None, {"frame": {"duration": duracao_ms, "redraw": True}, "fromcurrent": True}]},
                     {"label": "❚❚ Pause", "method": "animate", "args": [[None], {"frame": {"duration": 0, "redraw": False}}]}
@@ -177,7 +177,6 @@ with tab1:
             }]
         )
         
-        # Intervalos fixos para garantir visualização imediata da origem
         fig1.update_xaxes(title_text="Distância X (m)", range=[0, max(xs_v)*1.1], row=1, col=1)
         fig1.update_yaxes(title_text="Altura Y (m)", range=[0, max(ys_v)*1.2], row=1, col=1)
         fig1.update_xaxes(title_text="Tempo (s)", range=[0, ts_v[-1]*1.1], row=1, col=2)
@@ -241,11 +240,11 @@ with tab2:
         fig2.update_layout(
             title="Comparativo Dinâmico: Vácuo vs. Resistência do Ar",
             height=430, paper_bgcolor='white', plot_bgcolor='white',
-            margin=dict(l=20, r=20, t=75, b=20), # Margem superior ampliada
+            margin=dict(l=20, r=20, t=80, b=20),
             xaxis=dict(title="Distância Horizontal (m)", range=[0, max(xs_v[-1], xs_ar[-1])*1.1]),
             yaxis=dict(title="Altura Vertical (m)", range=[0, max(max(ys_v), max(ys_ar))*1.2]),
             updatemenus=[{
-                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.22, # Botões posicionados acima do título
+                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.25,
                 "buttons": [
                     {"label": "▶ Play", "method": "animate", "args": [None, {"frame": {"duration": duracao_ms_2, "redraw": True}, "fromcurrent": True}]},
                     {"label": "❚❚ Pause", "method": "animate", "args": [[None], {"frame": {"duration": 0, "redraw": False}}]}
