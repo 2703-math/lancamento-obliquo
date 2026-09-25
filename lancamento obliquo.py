@@ -130,13 +130,13 @@ with tab1:
         ang_1 = st.slider("Ângulo de Lançamento ($\theta$)", 10, 85, 45, step=1, key='ang_1')
         h0_1 = st.slider("Altura Inicial ($h_0$ em m)", 0.0, 10.0, 0.0, step=0.5, key='h0_1')
         
-        duracao_ms = st.select_slider("Velocidade da Animação", options=[10, 25, 50, 100], value=30, key='dur_1')
+        # Correção aplicada aqui (30 incluído nas opções)
+        duracao_ms = st.select_slider("Velocidade da Animação", options=[10, 20, 30, 50, 100], value=30, key='dur_1')
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
         ts_v, xs_v, ys_v, _, _, _ = simular_lancamento(v0_1, ang_1, h0_1, m=1.0, b=0.0)
         
-        # Gráfico com projeção ortogonal (Independência de eixos)
         fig1 = make_subplots(
             rows=2, cols=2, 
             column_widths=[0.75, 0.25], row_heights=[0.75, 0.25],
@@ -144,24 +144,21 @@ with tab1:
             subplot_titles=("Trajetória Principal (X vs Y)", "Projeção Y(t)", "Projeção X(t)", "")
         )
         
-        # Trajetória 2D Principal
         fig1.add_trace(go.Scatter(x=xs_v, y=ys_v, mode='lines', line=dict(color=COR_VACUO, width=3, dash='dash'), name='Trajetória'), row=1, col=1)
         fig1.add_trace(go.Scatter(x=[xs_v[0]], y=[ys_v[0]], mode='markers', marker=dict(color=COR_PROJETIL, size=16), name='Projétil'), row=1, col=1)
         
-        # Projeções nos eixos (Ilustrando a independência)
         fig1.add_trace(go.Scatter(x=ts_v, y=ys_v, mode='lines', line=dict(color='#9b59b6', width=2), name='Eixo Y (MRUV)'), row=1, col=2)
         fig1.add_trace(go.Scatter(x=xs_v, y=ts_v, mode='lines', line=dict(color='#e67e22', width=2), name='Eixo X (MRU)'), row=2, col=1)
         
-        # Frames de Animação
         n_frames = len(xs_v)
         frames = []
         for i in range(n_frames):
             frames.append(go.Frame(
                 data=[
-                    go.Scatter(x=xs_v[:i+1], y=ys_v[:i+1]), # Rastro
-                    go.Scatter(x=[xs_v[i]], y=[ys_v[i]]),     # Posição atual
-                    go.Scatter(x=ts_v[:i+1], y=ys_v[:i+1]),   # Projeção Y
-                    go.Scatter(x=xs_v[:i+1], y=ts_v[:i+1])    # Projeção X
+                    go.Scatter(x=xs_v[:i+1], y=ys_v[:i+1]),
+                    go.Scatter(x=[xs_v[i]], y=[ys_v[i]]),
+                    go.Scatter(x=ts_v[:i+1], y=ys_v[:i+1]),
+                    go.Scatter(x=xs_v[:i+1], y=ts_v[:i+1])
                 ],
                 traces=[0, 1, 2, 3],
                 name=f"f{i}"
@@ -195,7 +192,7 @@ with tab1:
 with tab2:
     st.markdown("""
     <div class="concept-card" style="border-left-color: #ef4444;">
-        <b>Lançamento Real com Arrasto Atmosférico:</b> No mundo real, o ar exerce uma força oposta à velocidade ($F_d = -b v \vec{v}$). Isso reduz drasticamente o alcance máximo e a altura máxima, além de tornar a trajetória assimétrica (a descida é mais curta e inclinada que a subida).
+        <b>Lançamento Real com Arrasto Atmosférico:</b> No mundo real, o ar exerce uma força oposta à velocidade ($F_d = -b v \vec{v}$). Isso reduz drasticamente o alcance máximo e a altura máxima, além de tornar a trajetória assimétrica.
     </div>
     """, unsafe_allow_html=True)
     
@@ -211,7 +208,8 @@ with tab2:
         massa_2 = st.slider("Massa do Projétil ($m$ em kg)", 0.1, 5.0, 1.0, step=0.1, key='m_2')
         coef_b = st.slider("Coef. de Arrasto ($b$)", 0.0, 0.2, 0.05, step=0.01, key='b_2')
         
-        duracao_ms_2 = st.select_slider("Velocidade da Animação", options=[10, 25, 50, 100], value=30, key='dur_2')
+        # Correção aplicada aqui também (30 incluído nas opções)
+        duracao_ms_2 = st.select_slider("Velocidade da Animação", options=[10, 20, 30, 50, 100], value=30, key='dur_2')
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_a2:
@@ -219,16 +217,11 @@ with tab2:
         
         fig2 = go.Figure()
         
-        # Trajetória no Vácuo (Referência)
         fig2.add_trace(go.Scatter(x=xs_v, y=ys_v, mode='lines', line=dict(color=COR_VACUO, width=2, dash='dash'), name='Ideal (Sem Ar)'))
-        # Trajetória com Ar
         fig2.add_trace(go.Scatter(x=xs_ar, y=ys_ar, mode='lines', line=dict(color=COR_AR, width=3), name='Real (Com Ar)'))
-        # Marcador animado
         fig2.add_trace(go.Scatter(x=[xs_ar[0]], y=[ys_ar[0]], mode='markers', marker=dict(color=COR_PROJETIL, size=16), name='Projétil'))
         
-        # Sincronizar frames com base no array de tempo do ar
         n_frames_ar = len(xs_ar)
-        # Amostrar o vácuo proporcionalmente para acompanhar
         idxs_v = np.linspace(0, len(xs_v)-1, n_frames_ar, dtype=int)
         
         frames = []
@@ -262,7 +255,6 @@ with tab2:
         
         st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': False})
         
-        # Métricas comparativas finais
         alcance_vacuo = xs_v[-1]
         alcance_ar = xs_ar[-1]
         perda_alcance = ((alcance_vacuo - alcance_ar) / alcance_vacuo) * 100
