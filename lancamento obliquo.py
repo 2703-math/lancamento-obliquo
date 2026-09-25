@@ -130,17 +130,17 @@ with tab1:
         ang_1 = st.slider("Ângulo de Lançamento ($\theta$)", 10, 85, 45, step=1, key='ang_1')
         h0_1 = st.slider("Altura Inicial ($h_0$ em m)", 0.0, 10.0, 0.0, step=0.5, key='h0_1')
         
-        # Correção aplicada aqui (30 incluído nas opções)
         duracao_ms = st.select_slider("Velocidade da Animação", options=[10, 20, 30, 50, 100], value=30, key='dur_1')
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
         ts_v, xs_v, ys_v, _, _, _ = simular_lancamento(v0_1, ang_1, h0_1, m=1.0, b=0.0)
         
+        # Subplots com espaçamento adequado (horizontal e vertical aumentados)
         fig1 = make_subplots(
             rows=2, cols=2, 
-            column_widths=[0.75, 0.25], row_heights=[0.75, 0.25],
-            horizontal_spacing=0.05, vertical_spacing=0.05,
+            column_widths=[0.72, 0.28], row_heights=[0.72, 0.28],
+            horizontal_spacing=0.15, vertical_spacing=0.18,
             subplot_titles=("Trajetória Principal (X vs Y)", "Projeção Y(t)", "Projeção X(t)", "")
         )
         
@@ -166,10 +166,10 @@ with tab1:
             
         fig1.frames = frames
         fig1.update_layout(
-            height=450, showlegend=False, paper_bgcolor='white', plot_bgcolor='white',
-            margin=dict(l=20, r=20, t=30, b=20),
+            height=500, showlegend=False, paper_bgcolor='white', plot_bgcolor='white',
+            margin=dict(l=20, r=20, t=75, b=20), # Margem superior ampliada para evitar sobreposição
             updatemenus=[{
-                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.15,
+                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.22, # Botões posicionados acima do título
                 "buttons": [
                     {"label": "▶ Play", "method": "animate", "args": [None, {"frame": {"duration": duracao_ms, "redraw": True}, "fromcurrent": True}]},
                     {"label": "❚❚ Pause", "method": "animate", "args": [[None], {"frame": {"duration": 0, "redraw": False}}]}
@@ -177,12 +177,13 @@ with tab1:
             }]
         )
         
-        fig1.update_xaxes(title_text="Distância X (m)", row=1, col=1)
-        fig1.update_yaxes(title_text="Altura Y (m)", row=1, col=1)
-        fig1.update_xaxes(title_text="Tempo (s)", row=1, col=2)
-        fig1.update_yaxes(title_text="Altura Y (m)", row=1, col=2)
-        fig1.update_xaxes(title_text="Distância X (m)", row=2, col=1)
-        fig1.update_yaxes(title_text="Tempo (s)", row=2, col=1)
+        # Intervalos fixos para garantir visualização imediata da origem
+        fig1.update_xaxes(title_text="Distância X (m)", range=[0, max(xs_v)*1.1], row=1, col=1)
+        fig1.update_yaxes(title_text="Altura Y (m)", range=[0, max(ys_v)*1.2], row=1, col=1)
+        fig1.update_xaxes(title_text="Tempo (s)", range=[0, ts_v[-1]*1.1], row=1, col=2)
+        fig1.update_yaxes(title_text="Altura Y (m)", range=[0, max(ys_v)*1.2], row=1, col=2)
+        fig1.update_xaxes(title_text="Distância X (m)", range=[0, max(xs_v)*1.1], row=2, col=1)
+        fig1.update_yaxes(title_text="Tempo (s)", range=[0, ts_v[-1]*1.1], row=2, col=1)
         
         st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': False})
 
@@ -208,7 +209,6 @@ with tab2:
         massa_2 = st.slider("Massa do Projétil ($m$ em kg)", 0.1, 5.0, 1.0, step=0.1, key='m_2')
         coef_b = st.slider("Coef. de Arrasto ($b$)", 0.0, 0.2, 0.05, step=0.01, key='b_2')
         
-        # Correção aplicada aqui também (30 incluído nas opções)
         duracao_ms_2 = st.select_slider("Velocidade da Animação", options=[10, 20, 30, 50, 100], value=30, key='dur_2')
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -240,12 +240,12 @@ with tab2:
         fig2.frames = frames
         fig2.update_layout(
             title="Comparativo Dinâmico: Vácuo vs. Resistência do Ar",
-            height=400, paper_bgcolor='white', plot_bgcolor='white',
-            margin=dict(l=20, r=20, t=40, b=20),
+            height=430, paper_bgcolor='white', plot_bgcolor='white',
+            margin=dict(l=20, r=20, t=75, b=20), # Margem superior ampliada
             xaxis=dict(title="Distância Horizontal (m)", range=[0, max(xs_v[-1], xs_ar[-1])*1.1]),
             yaxis=dict(title="Altura Vertical (m)", range=[0, max(max(ys_v), max(ys_ar))*1.2]),
             updatemenus=[{
-                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.15,
+                "type": "buttons", "showactive": False, "x": 0.0, "y": 1.22, # Botões posicionados acima do título
                 "buttons": [
                     {"label": "▶ Play", "method": "animate", "args": [None, {"frame": {"duration": duracao_ms_2, "redraw": True}, "fromcurrent": True}]},
                     {"label": "❚❚ Pause", "method": "animate", "args": [[None], {"frame": {"duration": 0, "redraw": False}}]}
